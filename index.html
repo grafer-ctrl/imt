@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Pro: Kalkulator IMT Cantik</title>
+    <style>
+        /* --- Bagian Styling (CSS) untuk Tampilan Cantik --- */
+        :root {
+            --primary-color: #6a89cc; /* Biru soft */
+            --secondary-color: #f0932b; /* Oranye hangat */
+            --background-color: #f4f7f6;
+            --card-color: #ffffff;
+            --text-color: #333;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            margin-bottom: 30px;
+            color: #777;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #d87d1a;
+        }
+        
+        button:active {
+            transform: scale(0.99);
+        }
+
+        /* Styling Area Hasil */
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #e8f5e9; /* Latar belakang hasil yang lembut */
+            border: 1px solid #c8e6c9;
+            display: none; /* Sembunyikan secara default */
+            text-align: center;
+        }
+
+        #imt-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        #kategori {
+            font-size: 1.2em;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        /* Warna kategori IMT */
+        .kurus { background-color: #ffe0b2; color: #ff9800; } /* Oranye muda */
+        .normal { background-color: #c8e6c9; color: #4caf50; } /* Hijau muda */
+        .gemuk { background-color: #ffccbc; color: #ff5722; } /* Merah oranye */
+        .obesitas { background-color: #ffcdd2; color: #f44336; } /* Merah */
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>BMI Pro 🍎</h1>
+        <p class="subtitle">Kalkulator Indeks Massa Tubuh (IMT) Cantik</p>
+
+        <form id="imt-form">
+            <div class="input-group">
+                <label for="berat">Berat Badan (kg)</label>
+                <input type="number" id="berat" required min="1" step="0.1" placeholder="Masukkan berat Anda">
+            </div>
+
+            <div class="input-group">
+                <label for="tinggi">Tinggi Badan (cm)</label>
+                <input type="number" id="tinggi" required min="1" step="0.1" placeholder="Masukkan tinggi Anda">
+            </div>
+
+            <button type="submit">Hitung IMT Saya!</button>
+        </form>
+
+        <div id="result" class="result-container">
+            <h2>Hasil IMT Anda</h2>
+            <div id="imt-value">--</div>
+            <div id="kategori">--</div>
+            <p id="saran" style="margin-top: 15px; font-size: 0.9em; color: #555;"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Bagian Logika (JavaScript) untuk Perhitungan ---
+        document.getElementById('imt-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah form submit default
+
+            const berat = parseFloat(document.getElementById('berat').value);
+            const tinggiCm = parseFloat(document.getElementById('tinggi').value);
+            
+            // Konversi tinggi dari cm ke meter
+            const tinggiMeter = tinggiCm / 100;
+            
+            // Formula IMT: Berat (kg) / (Tinggi (m) * Tinggi (m))
+            const imt = berat / (tinggiMeter * tinggiMeter);
+
+            // Pembulatan IMT ke 2 angka di belakang koma
+            const imtBulat = imt.toFixed(2);
+
+            let kategori = '';
+            let saran = '';
+            let kategoriClass = '';
+
+            // Klasifikasi IMT (mengacu pada standar umum)
+            if (imt < 18.5) {
+                kategori = 'Kurus (Kekurangan Berat Badan)';
+                saran = 'Disarankan untuk berkonsultasi dengan ahli gizi untuk mencapai berat badan sehat.';
+                kategoriClass = 'kurus';
+            } else if (imt >= 18.5 && imt < 25) {
+                kategori = 'Normal (Berat Badan Ideal)';
+                saran = 'Bagus! Pertahankan pola makan sehat dan gaya hidup aktif Anda.';
+                kategoriClass = 'normal';
+            } else if (imt >= 25 && imt < 30) {
+                kategori = 'Gemuk (Kelebihan Berat Badan)';
+                saran = 'Perhatikan asupan kalori dan tingkatkan aktivitas fisik secara bertahap.';
+                kategoriClass = 'gemuk';
+            } else {
+                kategori = 'Obesitas';
+                saran = 'Sangat disarankan untuk berkonsultasi dengan dokter atau ahli gizi untuk rencana kesehatan.';
+                kategoriClass = 'obesitas';
+            }
+
+            // Tampilkan hasil
+            const resultContainer = document.getElementById('result');
+            const imtValue = document.getElementById('imt-value');
+            const kategoriElement = document.getElementById('kategori');
+            const saranElement = document.getElementById('saran');
+
+            imtValue.textContent = imtBulat;
+            kategoriElement.textContent = kategori;
+            saranElement.textContent = saran;
+            
+            // Set warna background dan text sesuai kategori
+            kategoriElement.className = ''; // Hapus class sebelumnya
+            kategoriElement.classList.add(kategoriClass);
+
+            // Tampilkan container hasil
+            resultContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
